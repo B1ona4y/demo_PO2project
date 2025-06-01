@@ -38,8 +38,6 @@ public class HelloController {
     @FXML
     private Button addFoodDeleteButton;
 
-    String[] food  = {"Pizza", "Burger", "Fries", "Chicken", "Heroin", "Coca", "Krokodil", "Bebra", "Knife", "M4A4", "Male Reproductive System"};
-
     private final Food[] initialFoods = new Food[] {
             new Food("Pizza", 1, "2025-05-01"),
             new Food("Burger", 2, "2025-05-02"),
@@ -68,11 +66,8 @@ public class HelloController {
     }
 
     public void addFood() {
-        // 4.1 Read the name that the user typed
         String newName = foodNameTextField.getText().trim();
-
         if (newName.isEmpty()) {
-            // If the name field is blank, do nothing (or show an alert)
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setTitle("Cannot Add");
             alert.setHeaderText("Missing Food Name");
@@ -81,7 +76,6 @@ public class HelloController {
             return;
         }
 
-        // 4.2 Optionally, read number & date as well
         String numberValue = foodNumberTextField.getText().trim();
         if (!numberValue.isEmpty()) {
             if (Integer.parseInt(numberValue) <= 0) {
@@ -98,15 +92,12 @@ public class HelloController {
 
         Food newFood = new Food(newName, Integer.parseInt(numberValue), dateValue.toString());
 
-        // 4.3 Insert the new item into the ListView
         myListView.getItems().add(newFood);
 
-        // 4.4 Clear the TextField(s) so it’s ready for a new entry
         foodNameTextField.clear();
         foodNumberTextField.clear();
         foodDatePicker.setValue(null);
 
-        // 4.5 Optionally, scroll the ListView to the newly added item
         myListView.scrollTo(newFood);
     }
 
@@ -120,6 +111,7 @@ public class HelloController {
             alert.showAndWait();
             return;
         }
+
         String newName = foodNameTextField.getText().trim();
         if (newName.isEmpty()) {
             Alert alert = new Alert(Alert.AlertType.WARNING);
@@ -129,11 +121,8 @@ public class HelloController {
             alert.showAndWait();
             return;
         }
-        int newNumber;
-        try {
-            newNumber = Integer.parseInt(foodNumberTextField.getText().trim());
-            if (newNumber < 0) throw new NumberFormatException();
-        } catch (NumberFormatException e) {
+        int newNumber = Integer.parseInt(foodNumberTextField.getText().trim());
+        if (textfildTests.testNum(newNumber)) {
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setTitle("Cannot Edit");
             alert.setHeaderText("Invalid Number");
@@ -144,7 +133,6 @@ public class HelloController {
         LocalDate newDate = foodDatePicker.getValue();
 
         myListView.getItems().set(index, new Food(newName, newNumber, newDate.toString()));
-
     }
 
     public void deleteFood() {

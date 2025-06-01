@@ -23,7 +23,6 @@ public class Food {
         return date;
     }
 
-    // <--- Add or replace this:
     @Override
     public String toString() {
         return name;
