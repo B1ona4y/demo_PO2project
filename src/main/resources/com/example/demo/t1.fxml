@@ -11,7 +11,7 @@
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.demo.HelloController">
    <children>
       <ListView fx:id="myListView" editable="true" layoutX="300.0" layoutY="25.0" prefHeight="350.0" prefWidth="267.0" />
-      <Button fx:id="addFoodAddButton" layoutX="14.0" layoutY="231.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="267.0" text="Add">
+      <Button fx:id="addFoodAddButton" layoutX="14.0" layoutY="231.0" mnemonicParsing="false" onAction="#addFood" prefHeight="25.0" prefWidth="267.0" text="Add">
          <font>
             <Font size="20.0" />
          </font>
@@ -34,12 +34,12 @@
          </font>
       </Label>
       <DatePicker fx:id="foodDatePicker" layoutX="107.0" layoutY="125.0" />
-      <Button fx:id="addFoodEditButton" layoutX="14.0" layoutY="281.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="267.0" text="Edit">
+      <Button fx:id="addFoodEditButton" layoutX="14.0" layoutY="281.0" mnemonicParsing="false" onAction="#editFood" prefHeight="25.0" prefWidth="267.0" text="Edit">
          <font>
             <Font size="20.0" />
          </font>
       </Button>
-      <Button fx:id="addFoodDeleteButton" layoutX="14.0" layoutY="331.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="267.0" text="Delete">
+      <Button fx:id="addFoodDeleteButton" layoutX="14.0" layoutY="331.0" mnemonicParsing="false" onAction="#deleteFood" prefHeight="25.0" prefWidth="267.0" text="Delete">
          <font>
             <Font size="20.0" />
          </font>

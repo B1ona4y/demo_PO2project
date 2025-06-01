@@ -111,8 +111,52 @@ public class HelloController {
     }
 
     public void editFood() {
+        int index = myListView.getSelectionModel().getSelectedIndex();
+        if (index < 0) {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Cannot Edit");
+            alert.setHeaderText("No selection");
+            alert.setContentText("Please select a food before clicking Edit.");
+            alert.showAndWait();
+            return;
+        }
+        String newName = foodNameTextField.getText().trim();
+        if (newName.isEmpty()) {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Cannot Edit");
+            alert.setHeaderText("Missing Food Name");
+            alert.setContentText("Please enter a food name before clicking Edit.");
+            alert.showAndWait();
+            return;
+        }
+        int newNumber;
+        try {
+            newNumber = Integer.parseInt(foodNumberTextField.getText().trim());
+            if (newNumber < 0) throw new NumberFormatException();
+        } catch (NumberFormatException e) {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Cannot Edit");
+            alert.setHeaderText("Invalid Number");
+            alert.setContentText("Please enter a food name before clicking Edit.");
+            alert.showAndWait();
+            return;
+        }
+        LocalDate newDate = foodDatePicker.getValue();
+
+        myListView.getItems().set(index, new Food(newName, newNumber, newDate.toString()));
+
     }
 
     public void deleteFood() {
+        int index = myListView.getSelectionModel().getSelectedIndex();
+        if (index >= 0) {
+            myListView.getItems().remove(index);
+        } else {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Cannot Delete");
+            alert.setHeaderText("No Item Selected");
+            alert.setContentText("Please select an item from the list before clicking Delete.");
+            alert.showAndWait();
+        }
     }
 }
