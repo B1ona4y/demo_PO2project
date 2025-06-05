@@ -49,13 +49,19 @@ public class HelloController {
             // … you can add more initial items if you like
     };
 
+    private final String[] units = new String[] {
+            "kg",
+            "l",
+            "gr",
+            "mg",
+            "piece"
+    };
 
     Food currentFood;
 
     public void initialize() {
-
         myListView.getItems().addAll(initialFoods);
-        unitComboBox.getItems().addAll("kg", "l", "gr", "mg", "piece");
+        unitComboBox.getItems().addAll(units);
         myListView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Food>() {
 
             @Override
@@ -65,7 +71,6 @@ public class HelloController {
                 foodNumberTextField.setText(Integer.toString(currentFood.getNumber()));
                 unitComboBox.setValue(currentFood.getUnit());
             }
-
         });
     }
 
@@ -115,7 +120,6 @@ public class HelloController {
             alert.showAndWait();
             return;
         }
-
         String newName = foodNameTextField.getText().trim();
         if (newName.isEmpty()) {
             Alert alert = new Alert(Alert.AlertType.WARNING);
