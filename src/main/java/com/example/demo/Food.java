@@ -3,12 +3,12 @@ package com.example.demo;
 public class Food {
     private final String name;
     private final int number;
-    private final String date;
+    private final String unit;
 
-    public Food(String name, int number, String date) {
+    public Food(String name, int number, String unit) {
         this.name = name;
         this.number = number;
-        this.date = date;
+        this.unit = unit;
     }
 
     public String getName() {
@@ -19,8 +19,8 @@ public class Food {
         return number;
     }
 
-    public String getDate() {
-        return date;
+    public String getUnit() {
+        return unit;
     }
 
     @Override

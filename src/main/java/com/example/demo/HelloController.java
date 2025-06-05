@@ -27,7 +27,10 @@ public class HelloController {
     private TextField foodNumberTextField;
 
     @FXML
-    private DatePicker foodDatePicker;
+    private ComboBox<String> unitComboBox;
+
+    @FXML
+    private Button clearButton;
 
     @FXML
     private Button addFoodAddButton;
@@ -39,19 +42,20 @@ public class HelloController {
     private Button addFoodDeleteButton;
 
     private final Food[] initialFoods = new Food[] {
-            new Food("Pizza", 1, "2025-05-01"),
-            new Food("Burger", 2, "2025-05-02"),
-            new Food("Fries", 3, "2025-05-03"),
-            new Food("Chicken", 4, "2025-05-04"),
+            new Food("Pizza", 1, "piece"),
+            new Food("Burger", 2, "piece"),
+            new Food("Fries", 3, "piece"),
+            new Food("Chicken", 4, "piece"),
             // … you can add more initial items if you like
     };
+
 
     Food currentFood;
 
     public void initialize() {
 
         myListView.getItems().addAll(initialFoods);
-
+        unitComboBox.getItems().addAll("kg", "l", "gr", "mg", "piece");
         myListView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Food>() {
 
             @Override
@@ -59,7 +63,7 @@ public class HelloController {
                 currentFood = newFood;
                 foodNameTextField.setText(currentFood.getName());
                 foodNumberTextField.setText(Integer.toString(currentFood.getNumber()));
-                foodDatePicker.setValue(LocalDate.parse(currentFood.getDate()));
+                unitComboBox.setValue(currentFood.getUnit());
             }
 
         });
@@ -88,15 +92,15 @@ public class HelloController {
             }
         }
 
-        LocalDate dateValue = foodDatePicker.getValue();
+        String unit = unitComboBox.getValue();
 
-        Food newFood = new Food(newName, Integer.parseInt(numberValue), dateValue.toString());
+        Food newFood = new Food(newName, Integer.parseInt(numberValue), unit);
 
         myListView.getItems().add(newFood);
 
         foodNameTextField.clear();
         foodNumberTextField.clear();
-        foodDatePicker.setValue(null);
+        unitComboBox.setValue(null);
 
         myListView.scrollTo(newFood);
     }
@@ -122,7 +126,7 @@ public class HelloController {
             return;
         }
         int newNumber = Integer.parseInt(foodNumberTextField.getText().trim());
-        if (textfildTests.testNum(newNumber)) {
+        if (!textfildTests.testNum(newNumber)) {
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setTitle("Cannot Edit");
             alert.setHeaderText("Invalid Number");
@@ -130,9 +134,15 @@ public class HelloController {
             alert.showAndWait();
             return;
         }
-        LocalDate newDate = foodDatePicker.getValue();
+        String unit = unitComboBox.getValue();
 
-        myListView.getItems().set(index, new Food(newName, newNumber, newDate.toString()));
+        myListView.getItems().set(index, new Food(newName, newNumber, unit));
+    }
+
+    public void clearFoodFields() {
+        foodNameTextField.clear();
+        foodNumberTextField.clear();
+        unitComboBox.setValue(null);
     }
 
     public void deleteFood() {
