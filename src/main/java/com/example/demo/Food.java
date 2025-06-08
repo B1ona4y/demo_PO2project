@@ -2,12 +2,12 @@ package com.example.demo;
 
 public class Food {
     private final String name;
-    private final int number;
+    private final double quantity; // изменили с int на double
     private final String unit;
 
-    public Food(String name, int number, String unit) {
+    public Food(String name, double quantity, String unit) {
         this.name = name;
-        this.number = number;
+        this.quantity = quantity;
         this.unit = unit;
     }
 
@@ -15,8 +15,8 @@ public class Food {
         return name;
     }
 
-    public int getNumber() {
-        return number;
+    public double getQuantity() {
+        return quantity;
     }
 
     public String getUnit() {
@@ -25,6 +25,13 @@ public class Food {
 
     @Override
     public String toString() {
-        return name;
+        // при выводе в ListView отображаем "Яблоки (1.5 кг)" или просто "Яблоки", если целое
+        if (quantity == Math.floor(quantity)) {
+            // целое число
+            return String.format("%s (%d %s)", name, (int)quantity, unit);
+        } else {
+            // дробное
+            return String.format("%s (%.2f %s)", name, quantity, unit);
+        }
     }
 }

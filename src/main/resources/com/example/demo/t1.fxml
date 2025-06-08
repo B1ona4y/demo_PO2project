@@ -8,37 +8,44 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="349.0" prefWidth="585.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.demo.HelloController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="350.0" prefWidth="644.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.demo.HelloController">
    <children>
-      <ListView fx:id="myListView" editable="true" layoutX="304.0" layoutY="19.0" prefHeight="310.0" prefWidth="267.0" />
-      <Button fx:id="addFoodAddButton" layoutX="14.0" layoutY="185.0" mnemonicParsing="false" onAction="#addFood" prefHeight="25.0" prefWidth="267.0" text="Add">
+      <ListView fx:id="myListView" editable="true" layoutX="363.0" layoutY="14.0" prefHeight="322.0" prefWidth="267.0" />
+      <Button fx:id="addFoodAddButton" layoutX="20.0" layoutY="292.0" mnemonicParsing="false" onAction="#addFood" prefHeight="44.0" prefWidth="94.0" text="Add">
          <font>
             <Font size="20.0" />
          </font>
       </Button>
-      <TextField fx:id="foodNameTextField" layoutX="93.0" layoutY="21.0" prefHeight="25.0" prefWidth="188.0" />
-      <TextField fx:id="foodNumberTextField" layoutX="93.0" layoutY="66.0" prefHeight="25.0" prefWidth="73.0" />
-      <Label layoutX="14.0" layoutY="19.0" text="Name:">
+      <TextField fx:id="foodNameTextField" layoutX="93.0" layoutY="21.0" prefHeight="35.0" prefWidth="179.0">
+         <font>
+            <Font size="16.0" />
+         </font></TextField>
+      <TextField fx:id="foodNumberTextField" layoutX="93.0" layoutY="213.0" prefHeight="25.0" prefWidth="122.0" />
+      <Label layoutX="20.0" layoutY="24.0" text="Name:">
          <font>
             <Font size="20.0" />
          </font>
       </Label>
-      <Label layoutX="14.0" layoutY="64.0" prefHeight="30.0" prefWidth="73.0" text="Number:">
+      <Label layoutX="14.0" layoutY="211.0" prefHeight="30.0" prefWidth="84.0" text="Number:">
          <font>
-            <Font size="18.0" />
+            <Font size="20.0" />
          </font>
       </Label>
-      <Button fx:id="addFoodEditButton" layoutX="14.0" layoutY="235.0" mnemonicParsing="false" onAction="#editFood" prefHeight="25.0" prefWidth="267.0" text="Edit">
+      <Button fx:id="addFoodEditButton" layoutX="134.0" layoutY="292.0" mnemonicParsing="false" onAction="#editFood" prefHeight="44.0" prefWidth="94.0" text="Edit">
          <font>
             <Font size="20.0" />
          </font>
       </Button>
-      <Button fx:id="addFoodDeleteButton" layoutX="14.0" layoutY="285.0" mnemonicParsing="false" onAction="#deleteFood" prefHeight="25.0" prefWidth="267.0" text="Delete">
+      <Button fx:id="addFoodDeleteButton" layoutX="248.0" layoutY="292.0" mnemonicParsing="false" onAction="#deleteFood" prefHeight="44.0" prefWidth="94.0" text="Delete">
          <font>
             <Font size="20.0" />
          </font>
       </Button>
-      <ComboBox fx:id="unitComboBox" layoutX="174.0" layoutY="66.0" prefHeight="25.0" prefWidth="107.0" />
-      <Button fx:id="clearButton" layoutX="14.0" layoutY="104.0" mnemonicParsing="false" onAction="#clearFoodFields" prefHeight="25.0" prefWidth="51.0" text="Clear" />
+      <ComboBox fx:id="unitComboBox" layoutX="218.0" layoutY="213.0" prefHeight="25.0" prefWidth="122.0" />
+      <Button fx:id="clearButton" layoutX="14.0" layoutY="166.0" mnemonicParsing="false" onAction="#clearFoodFields" prefHeight="25.0" prefWidth="58.0" text="Clear" />
+      <Button fx:id="saveButton" layoutX="14.0" layoutY="63.0" mnemonicParsing="false" onAction="#saveListToTxt" prefHeight="25.0" prefWidth="58.0" text="Save" />
+      <ListView fx:id="searchListView" layoutX="93.0" layoutY="63.0" prefHeight="128.0" prefWidth="249.0" />
+      <Button fx:id="loadButton" layoutX="14.0" layoutY="102.0" mnemonicParsing="false" onAction="#loadListFromTxt" prefHeight="25.0" prefWidth="58.0" text="Load" />
+      <Button fx:id="searchButton" layoutX="278.0" layoutY="21.0" mnemonicParsing="false" onAction="#search" prefHeight="35.0" prefWidth="64.0" text="Shearch" />
    </children>
 </AnchorPane>
