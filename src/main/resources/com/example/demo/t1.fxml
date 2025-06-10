@@ -44,8 +44,10 @@
       <ComboBox fx:id="unitComboBox" layoutX="218.0" layoutY="213.0" prefHeight="25.0" prefWidth="122.0" />
       <Button fx:id="clearButton" layoutX="14.0" layoutY="166.0" mnemonicParsing="false" onAction="#clearFoodFields" prefHeight="25.0" prefWidth="58.0" text="Clear" />
       <Button fx:id="saveButton" layoutX="14.0" layoutY="63.0" mnemonicParsing="false" onAction="#saveListToTxt" prefHeight="25.0" prefWidth="58.0" text="Save" />
+      <Button fx:id="addtoAFCButton" layoutX="14.0" layoutY="136.0" mnemonicParsing="false" onAction="#addNewFood" prefHeight="25.0" prefWidth="58.0" text="addCF" />
+
       <ListView fx:id="searchListView" layoutX="93.0" layoutY="63.0" prefHeight="128.0" prefWidth="249.0" />
       <Button fx:id="loadButton" layoutX="14.0" layoutY="102.0" mnemonicParsing="false" onAction="#loadListFromTxt" prefHeight="25.0" prefWidth="58.0" text="Load" />
-      <Button fx:id="searchButton" layoutX="278.0" layoutY="21.0" mnemonicParsing="false" onAction="#search" prefHeight="35.0" prefWidth="64.0" text="Shearch" />
+      <Button fx:id="searchButton" layoutX="278.0" layoutY="21.0" mnemonicParsing="false" onAction="#search" prefHeight="35.0" prefWidth="64.0" text="Search" />
    </children>
 </AnchorPane>

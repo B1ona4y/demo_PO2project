@@ -1,34 +1,28 @@
 package com.example.demo;
 
 import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.stage.FileChooser;
 import javafx.scene.control.Label;
 import javafx.stage.Window;
 
-import java.awt.event.ActionEvent;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 
 import javafx.scene.control.Alert;
 import javafx.scene.control.ListView;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-
 import javafx.scene.control.TextField;
 
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Scanner;
 import java.util.stream.Collectors;
 
 
 public class HelloController {
+    public static Scanner myReader;
     @FXML
     private ListView<Food> myListView;
 
@@ -65,8 +59,6 @@ public class HelloController {
     @FXML
     private Button addtoAFCButton;
 
-
-
     @FXML
     private Button addFoodAddButton;
 
@@ -76,20 +68,7 @@ public class HelloController {
     @FXML
     private Button addFoodDeleteButton;
 
-    private final Food[] collectionOfFoods = new Food[]{
-            new Food("Pizza", 0, "piece"),
-            new Food("Burger", 0, "piece"),
-            new Food("Fries", 0, "piece"),
-            new Food("Chicken", 0, "piece"),
-            new Food("Sauce", 0, "piece"),
-            new Food("Cheese", 0, "piece"),
-            new Food("Pepperoni", 0, "piece"),
-            new Food("Soda", 0, "piece"),
-            new Food("Tomato", 0, "piece"),
-            new Food("Veggie", 0, "piece"),
-            new Food("Tomato", 0, "piece"),
-            //...
-    };
+    private static List<Food> collectionOfFoods = new LinkedList<>();
 
     private final Food[] initialFoods = new Food[]{};
 
@@ -104,6 +83,7 @@ public class HelloController {
     Food currentFood;
 
     public void initialize() {
+        configSetup("src/main/confList.txt");
         myListView.getItems().addAll(initialFoods);
         unitComboBox.getItems().addAll(units);
         searchListView.getItems().addAll(initialFoods);
@@ -127,14 +107,14 @@ public class HelloController {
         searchListView.getItems().addAll(searchResult);
     }
 
-    private List<Food> searchList(String searchWords, Food[] listOfFoods) {
+    private List<Food> searchList(String searchWords, List<Food> listOfFoods) {
 
         List<String> searchWordsArray = Arrays.asList(searchWords.trim().split(" "));
-        return Arrays.stream(listOfFoods)
+        return listOfFoods.stream()
                 .filter(food -> searchWordsArray.stream()
                         .allMatch(word -> food.getName().toLowerCase().contains(word.toLowerCase())))
-                        .distinct()
-                        .collect(Collectors.toList());
+                .distinct()
+                .collect(Collectors.toList());
     }
 
     public void addFood() {
@@ -181,7 +161,6 @@ public class HelloController {
                 break;
             }
         }
-
         if (existsInCollection) {
             myListView.getItems().add(newFood);
             foodNameTextField.clear();
@@ -346,4 +325,53 @@ public class HelloController {
             }
         }
     }
+    public static void configSetup(String configName) {
+        try {
+            File myObj = new File(configName);
+            myReader = new Scanner(myObj);
+            while (myReader.hasNextLine()) {
+                String data = myReader.nextLine();
+                if (data.isEmpty()) continue;
+                String[] parts = data.split(";");
+                if (parts.length == 2) {
+                    String name = parts[0];
+                    double quantity = 0;
+                    String unit = parts[1];
+                    Food food = new Food(name, quantity, unit);
+                    collectionOfFoods.add(food);
+                }
+            }
+            myReader.close();
+        } catch (FileNotFoundException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
+    }
+
+    public void addNewFood() {
+        String name = foodNameTextField.getText().trim();
+        String unit = unitComboBox.getValue();
+        for (Food food : collectionOfFoods) {
+            if (food.getName().equalsIgnoreCase(name)) {
+                return;
+            }
+        }
+        String lineToAdd = String.format("%s;%s", name, unit);
+        try (FileWriter fw = new FileWriter("confList", true);
+             BufferedWriter bw = new BufferedWriter(fw)) {
+            bw.write(lineToAdd);
+            bw.newLine();
+            Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
+            successAlert.setTitle("Success");
+            successAlert.setContentText("File saved");
+            successAlert.showAndWait();
+            configSetup("confList");
+        } catch (IOException e) {
+            Alert errorAlert = new Alert(Alert.AlertType.ERROR);
+            errorAlert.setTitle("Error");
+            errorAlert.setContentText("Error while saving file:\n" + e.getMessage());
+            errorAlert.showAndWait();
+        }
+    }
+
 }

@@ -20,7 +20,7 @@ public class HelloApplication extends Application {
 
         Image icon = new Image("icon.png");
         stage.getIcons().add(icon);
-        stage.setTitle("Hello!");
+        stage.setTitle("ToBuyList");
         stage.setScene(scene);
         stage.show();
     }
