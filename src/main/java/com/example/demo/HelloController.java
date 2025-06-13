@@ -1,6 +1,7 @@
 package com.example.demo;
 
 import javafx.beans.value.ChangeListener;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.FileChooser;
@@ -19,7 +20,14 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.stream.Collectors;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.util.Collections;
 
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 
 public class HelloController {
     public static Scanner myReader;
@@ -83,7 +91,7 @@ public class HelloController {
     Food currentFood;
 
     public void initialize() {
-        configSetup("src/main/confList.txt");
+        configSetup();
         myListView.getItems().addAll(initialFoods);
         unitComboBox.getItems().addAll(units);
         searchListView.getItems().addAll(initialFoods);
@@ -120,39 +128,47 @@ public class HelloController {
     public void addFood() {
         String newName = foodNameTextField.getText().trim();
         if (newName.isEmpty()) {
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle("Cannot Add");
-            alert.setHeaderText("Missing Food Name");
-            alert.setContentText("Please enter a food name before clicking Add.");
-            alert.showAndWait();
+            new Alert(Alert.AlertType.WARNING,
+                    "Please enter a food name before clicking Add.")
+                    .showAndWait();
             return;
         }
 
-        String numberValue = foodNumberTextField.getText().trim();
-        if (!numberValue.isEmpty()) {
-            if (Integer.parseInt(numberValue) <= 0) {
-                Alert alert = new Alert(Alert.AlertType.WARNING);
-                alert.setTitle("Cannot Add");
-                alert.setHeaderText("Invalid Number");
-                alert.setContentText("Please enter a positive number for the number of items.");
-                alert.showAndWait();
+        String rawNumberValue = foodNumberTextField.getText().trim();
+        if (rawNumberValue.isEmpty()) {
+            new Alert(Alert.AlertType.WARNING,
+                    "Please enter a food number before clicking Add.")
+                    .showAndWait();
+            return;
+        }
+
+        double numberValue;
+        try {
+            numberValue = Double.parseDouble(rawNumberValue);
+            if (numberValue < 0) {
+                new Alert(Alert.AlertType.WARNING,
+                        "Please number of a food must be >= 0.")
+                        .showAndWait();
                 return;
             }
         }
+        catch (NumberFormatException e) {
+            new Alert(Alert.AlertType.WARNING,
+                    "Please enter a positive number for the quantity.")
+                    .showAndWait();
+            return;
+        }
+
 
         String unit = unitComboBox.getValue();
         if (unit == null || unit.isEmpty()) {
-            if (Integer.parseInt(numberValue) <= 0) {
-                Alert alert = new Alert(Alert.AlertType.WARNING);
-                alert.setTitle("Cannot Add");
-                alert.setHeaderText("Missing Unit");
-                alert.setContentText("Please enter a unit type for the items.");
-                alert.showAndWait();
-                return;
-            }
+            new Alert(Alert.AlertType.WARNING,
+                    "Please enter a unit type for the items.")
+                    .showAndWait();
+            return;
         }
 
-        Food newFood = new Food(newName, Integer.parseInt(numberValue), unit);
+        Food newFood = new Food(newName, numberValue, unit);
 
         boolean existsInCollection = false;
         for (Food food : collectionOfFoods) {
@@ -161,17 +177,27 @@ public class HelloController {
                 break;
             }
         }
+
         if (existsInCollection) {
-            myListView.getItems().add(newFood);
-            foodNameTextField.clear();
-            foodNumberTextField.clear();
-            unitComboBox.setValue(null);
-            myListView.scrollTo(newFood);
+            ObservableList<Food> items = myListView.getItems();
+            boolean merged = false;
+            for (int i = 0; i < items.size(); i++) {
+                Food existing = items.get(i);
+                if (existing.getName().equalsIgnoreCase(newName)) {
+                    double updatedQty = existing.getQuantity() + numberValue;
+                    items.set(i, new Food(newName, updatedQty, unit));
+                    merged = true;
+                    break;
+                }
+            }
+            if (!merged) {
+                items.add(newFood);
+            }
         } else {
             Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle("Food Not Allowed"); // Corrected typo
+            alert.setTitle("Food cant be added!");
             alert.setHeaderText("The food item is not in the allowed collection.");
-            alert.setContentText("Please enter a food item from the master list.");
+            alert.setContentText("Please enter a food item from the master list or add it to the collection.");
             alert.showAndWait();
         }
     }
@@ -179,44 +205,41 @@ public class HelloController {
     public void editFood() {
         int index = myListView.getSelectionModel().getSelectedIndex();
         if (index < 0) {
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle("Cannot Edit");
-            alert.setHeaderText("No selection");
-            alert.setContentText("Please select a food before clicking Edit.");
-            alert.showAndWait();
+            new Alert(Alert.AlertType.WARNING,
+                    "Please select a food before clicking Edit.")
+                    .showAndWait();
             return;
         }
         String newName = foodNameTextField.getText().trim();
         if (newName.isEmpty()) {
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle("Cannot Edit");
-            alert.setHeaderText("Missing Food Name");
-            alert.setContentText("Please enter a food name before clicking Edit.");
-            alert.showAndWait();
+            new Alert(Alert.AlertType.WARNING,
+                    "Please enter a food name before clicking Edit.")
+                    .showAndWait();
             return;
         }
-        int newNumber = 0;
+        double newNumber;
         try {
-            newNumber = Integer.parseInt(foodNumberTextField.getText().trim());
+            newNumber = Double.parseDouble(foodNumberTextField.getText().trim());
+            if (newNumber <= 0) {
+                new Alert(Alert.AlertType.WARNING,
+                        "Please enter a positive number for the quantity.")
+                        .showAndWait();
+                return;
+            }
         } catch (NumberFormatException e) {
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle("Cannot Edit");
-            alert.setHeaderText("Invalid Number");
-            alert.setContentText("Please enter a positive number for the quantity.");
-            alert.showAndWait();
-            return;
-        }
-
-        if (newNumber <= 0) {
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle("Cannot Edit");
-            alert.setHeaderText("Invalid Number");
-            alert.setContentText("Please enter a positive number for the quantity.");
-            alert.showAndWait();
+            new Alert(Alert.AlertType.WARNING,
+                    "Please enter a positive number for the quantity.")
+                    .showAndWait();
             return;
         }
 
         String unit = unitComboBox.getValue();
+        if (unit == null || unit.isEmpty()) {
+            new Alert(Alert.AlertType.WARNING,
+                    "Please enter a unit type for the items.")
+                    .showAndWait();
+            return;
+        }
 
         myListView.getItems().set(index, new Food(newName, newNumber, unit));
     }
@@ -246,8 +269,7 @@ public class HelloController {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Save buy list");
         fileChooser.getExtensionFilters().add(
-                new FileChooser.ExtensionFilter("Text Files (*.txt)", "*.txt")
-        );
+                new FileChooser.ExtensionFilter("Text Files (*.txt)", "*.txt"));
         File file = fileChooser.showSaveDialog(window);
 
         if (file != null) {
@@ -280,8 +302,7 @@ public class HelloController {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open buy list");
         fileChooser.getExtensionFilters().add(
-                new FileChooser.ExtensionFilter("Text Files (*.txt)", "*.txt")
-        );
+                new FileChooser.ExtensionFilter("Text Files (*.txt)", "*.txt"));
         File file = fileChooser.showOpenDialog(window);
 
         if (file != null) {
@@ -325,52 +346,80 @@ public class HelloController {
             }
         }
     }
-    public static void configSetup(String configName) {
+
+    public void configSetup() {
+        Path path = Path.of("src/main/resources/confList.txt");
+
         try {
-            File myObj = new File(configName);
-            myReader = new Scanner(myObj);
-            while (myReader.hasNextLine()) {
-                String data = myReader.nextLine();
-                if (data.isEmpty()) continue;
-                String[] parts = data.split(";");
-                if (parts.length == 2) {
-                    String name = parts[0];
-                    double quantity = 0;
-                    String unit = parts[1];
-                    Food food = new Food(name, quantity, unit);
-                    collectionOfFoods.add(food);
-                }
+            if (!Files.exists(path)) {
+                Files.createFile(path);
+                return;
             }
-            myReader.close();
-        } catch (FileNotFoundException e) {
-            System.out.println("An error occurred.");
+
+            List<String> lines = Files.readAllLines(path);
+
+            collectionOfFoods.clear();
+
+            for (String data : lines) {
+                if (data.isBlank()) continue;          // skip empty
+                String[] parts = data.split(";");
+                if (parts.length != 2) continue;      // skip bad lines
+
+                String name = parts[0];
+                String unit = parts[1];
+                double quantity = 0.0;                // default
+
+                collectionOfFoods.add(new Food(name, quantity, unit));
+            }
+
+        } catch (IOException e) {
+
             e.printStackTrace();
+            new Alert(AlertType.ERROR,
+                    "Error loading configuration file:\n" + e.getMessage()
+            ).showAndWait();
         }
     }
+
 
     public void addNewFood() {
         String name = foodNameTextField.getText().trim();
         String unit = unitComboBox.getValue();
-        for (Food food : collectionOfFoods) {
-            if (food.getName().equalsIgnoreCase(name)) {
+
+        if (name.isEmpty()) {
+            new Alert(AlertType.WARNING, "Please enter a food name.").showAndWait();
+            return;
+        }
+
+        for (Food f : collectionOfFoods) {
+            if (f.getName().equalsIgnoreCase(name)) {
+                new Alert(AlertType.INFORMATION, "This food already exists.").showAndWait();
                 return;
             }
         }
+
         String lineToAdd = String.format("%s;%s", name, unit);
-        try (FileWriter fw = new FileWriter("confList", true);
-             BufferedWriter bw = new BufferedWriter(fw)) {
-            bw.write(lineToAdd);
-            bw.newLine();
-            Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
-            successAlert.setTitle("Success");
-            successAlert.setContentText("File saved");
-            successAlert.showAndWait();
-            configSetup("confList");
+        Path path = Path.of("src/main/resources/confList.txt");
+
+        System.out.println("Writing to: " + path.toAbsolutePath());
+
+        try {
+            Files.write(
+                    path,
+                    Collections.singletonList(lineToAdd),
+                    StandardOpenOption.CREATE,
+                    StandardOpenOption.APPEND
+            );
+
+            collectionOfFoods.add(new Food(name, 0, unit));
+            foodNameTextField.clear();
+            unitComboBox.getSelectionModel().clearSelection();
+
+            new Alert(AlertType.INFORMATION, "New food added and saved to file.").showAndWait();
         } catch (IOException e) {
-            Alert errorAlert = new Alert(Alert.AlertType.ERROR);
-            errorAlert.setTitle("Error");
-            errorAlert.setContentText("Error while saving file:\n" + e.getMessage());
-            errorAlert.showAndWait();
+            e.printStackTrace();
+            new Alert(AlertType.ERROR, "Could not save to file:\n" + e.getMessage())
+                    .showAndWait();
         }
     }
 

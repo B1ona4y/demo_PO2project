@@ -1,4 +1,0 @@
-Cheese;kg
-Sose;l
-Cola;l
-Pizza;piece
