@@ -19,7 +19,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.stream.Collectors;
-
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.util.Collections;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 
 public class HelloController {
     public static Scanner myReader;
@@ -83,7 +89,7 @@ public class HelloController {
     Food currentFood;
 
     public void initialize() {
-        configSetup("src/main/confList.txt");
+        configSetup();
         myListView.getItems().addAll(initialFoods);
         unitComboBox.getItems().addAll(units);
         searchListView.getItems().addAll(initialFoods);
@@ -206,7 +212,6 @@ public class HelloController {
             alert.showAndWait();
             return;
         }
-
         if (newNumber <= 0) {
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setTitle("Cannot Edit");
@@ -246,8 +251,7 @@ public class HelloController {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Save buy list");
         fileChooser.getExtensionFilters().add(
-                new FileChooser.ExtensionFilter("Text Files (*.txt)", "*.txt")
-        );
+                new FileChooser.ExtensionFilter("Text Files (*.txt)", "*.txt"));
         File file = fileChooser.showSaveDialog(window);
 
         if (file != null) {
@@ -280,8 +284,7 @@ public class HelloController {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open buy list");
         fileChooser.getExtensionFilters().add(
-                new FileChooser.ExtensionFilter("Text Files (*.txt)", "*.txt")
-        );
+                new FileChooser.ExtensionFilter("Text Files (*.txt)", "*.txt"));
         File file = fileChooser.showOpenDialog(window);
 
         if (file != null) {
@@ -325,52 +328,89 @@ public class HelloController {
             }
         }
     }
-    public static void configSetup(String configName) {
+
+    public void configSetup() {
+        // 1. Point at the same file that addNewFood() uses
+        Path path = Path.of("src/main/resources/confList.txt");
+
         try {
-            File myObj = new File(configName);
-            myReader = new Scanner(myObj);
-            while (myReader.hasNextLine()) {
-                String data = myReader.nextLine();
-                if (data.isEmpty()) continue;
-                String[] parts = data.split(";");
-                if (parts.length == 2) {
-                    String name = parts[0];
-                    double quantity = 0;
-                    String unit = parts[1];
-                    Food food = new Food(name, quantity, unit);
-                    collectionOfFoods.add(food);
-                }
+            // 2. Create it if missing, then bail (nothing to load yet)
+            if (!Files.exists(path)) {
+                Files.createFile(path);
+                return;
             }
-            myReader.close();
-        } catch (FileNotFoundException e) {
-            System.out.println("An error occurred.");
+
+            // 3. Read all lines at once
+            List<String> lines = Files.readAllLines(path);
+
+            // Optionally clear old data
+            collectionOfFoods.clear();
+
+            // 4. Parse each line
+            for (String data : lines) {
+                if (data.isBlank()) continue;          // skip empty
+                String[] parts = data.split(";");
+                if (parts.length != 2) continue;      // skip bad lines
+
+                String name = parts[0];
+                String unit = parts[1];
+                double quantity = 0.0;                // default
+
+                // 5. Add to in-memory list
+                collectionOfFoods.add(new Food(name, quantity, unit));
+            }
+
+        } catch (IOException e) {
+            // 6. Alert on error
             e.printStackTrace();
+            new Alert(AlertType.ERROR,
+                    "Error loading configuration file:\n" + e.getMessage()
+            ).showAndWait();
         }
     }
+
 
     public void addNewFood() {
         String name = foodNameTextField.getText().trim();
         String unit = unitComboBox.getValue();
-        for (Food food : collectionOfFoods) {
-            if (food.getName().equalsIgnoreCase(name)) {
+
+        if (name.isEmpty()) {
+            new Alert(AlertType.WARNING, "Please enter a food name.").showAndWait();
+            return;
+        }
+
+        // Duplicate check
+        for (Food f : collectionOfFoods) {
+            if (f.getName().equalsIgnoreCase(name)) {
+                new Alert(AlertType.INFORMATION, "This food already exists.").showAndWait();
                 return;
             }
         }
+
         String lineToAdd = String.format("%s;%s", name, unit);
-        try (FileWriter fw = new FileWriter("confList", true);
-             BufferedWriter bw = new BufferedWriter(fw)) {
-            bw.write(lineToAdd);
-            bw.newLine();
-            Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
-            successAlert.setTitle("Success");
-            successAlert.setContentText("File saved");
-            successAlert.showAndWait();
-            configSetup("confList");
+        Path path = Path.of("src/main/resources/confList.txt");
+
+        // Debug: show where we’re writing
+        System.out.println("Writing to: " + path.toAbsolutePath());
+
+        try {
+            Files.write(
+                    path,
+                    Collections.singletonList(lineToAdd),
+                    StandardOpenOption.CREATE,
+                    StandardOpenOption.APPEND
+            );
+
+            // Update in-memory list & UI
+            collectionOfFoods.add(new Food(name, 0, unit));
+            foodNameTextField.clear();
+            unitComboBox.getSelectionModel().clearSelection();
+
+            new Alert(AlertType.INFORMATION, "New food added and saved to file.").showAndWait();
         } catch (IOException e) {
-            Alert errorAlert = new Alert(Alert.AlertType.ERROR);
-            errorAlert.setTitle("Error");
-            errorAlert.setContentText("Error while saving file:\n" + e.getMessage());
-            errorAlert.showAndWait();
+            e.printStackTrace();
+            new Alert(AlertType.ERROR, "Could not save to file:\n" + e.getMessage())
+                    .showAndWait();
         }
     }
 
