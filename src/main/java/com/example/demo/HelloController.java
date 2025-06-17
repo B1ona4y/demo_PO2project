@@ -62,6 +62,9 @@ public class HelloController {
     private Button addtoAFCButton;
 
     @FXML
+    private Button deleteAFCButton;
+
+    @FXML
     private Button addFoodAddButton;
 
     @FXML
@@ -101,6 +104,7 @@ public class HelloController {
 
         myListView.getSelectionModel().selectedItemProperty().addListener(foodSelectionListener);
         searchListView.getSelectionModel().selectedItemProperty().addListener(foodSelectionListener);
+        search();
     }
 
     public void search() {
@@ -203,6 +207,7 @@ public class HelloController {
                     .showAndWait();
             return;
         }
+
         String newName = foodNameTextField.getText().trim();
         if (newName.isEmpty()) {
             new Alert(Alert.AlertType.WARNING,
@@ -210,6 +215,7 @@ public class HelloController {
                     .showAndWait();
             return;
         }
+
         double newNumber;
         try {
             newNumber = Double.parseDouble(foodNumberTextField.getText().trim());
@@ -268,7 +274,7 @@ public class HelloController {
         if (file != null) {
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
                 for (Food food : myListView.getItems()) {
-                    String line = String.format("%s ; %f ; %s",
+                    String line = String.format("%s; %f; %s",
                             food.getName(),
                             food.getQuantity(),
                             food.getUnit()
@@ -323,17 +329,15 @@ public class HelloController {
                         myListView.getItems().add(food);
                     }
                 }
-
                 Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
                 successAlert.setTitle("Success");
                 successAlert.setHeaderText(null);
-                successAlert.setContentText("Файл успешно загружен из:\n" + file.getAbsolutePath());
+                successAlert.setContentText("File is successfully saved:\n" + file.getAbsolutePath());
                 successAlert.showAndWait();
-
             } catch (IOException e) {
                 Alert errorAlert = new Alert(Alert.AlertType.ERROR);
                 errorAlert.setTitle("Error");
-                errorAlert.setHeaderText("Ошибка при загрузке файла");
+                errorAlert.setHeaderText("Error loading file");
                 errorAlert.setContentText(e.getMessage());
                 errorAlert.showAndWait();
             }
@@ -383,6 +387,10 @@ public class HelloController {
             new Alert(AlertType.WARNING, "Please enter a food name.").showAndWait();
             return;
         }
+        if (unit == null || unit.isEmpty()) {
+            new Alert(AlertType.WARNING, "Please enter a food unit.").showAndWait();
+            return;
+        }
 
         for (Food f : collectionOfFoods) {
             if (f.getName().equalsIgnoreCase(name)) {
@@ -391,7 +399,7 @@ public class HelloController {
             }
         }
 
-        String lineToAdd = String.format("%s;%s", name, unit);
+        String lineToAdd = String.format("%s; %s", name, unit);
         Path path = Path.of("src/main/resources/confList.txt");
 
         System.out.println("Writing to: " + path.toAbsolutePath());
@@ -407,7 +415,7 @@ public class HelloController {
             collectionOfFoods.add(new Food(name, 0, unit));
             foodNameTextField.clear();
             unitComboBox.getSelectionModel().clearSelection();
-
+            search();
             new Alert(AlertType.INFORMATION, "New food added and saved to file.").showAndWait();
         } catch (IOException e) {
             e.printStackTrace();
@@ -416,4 +424,64 @@ public class HelloController {
         }
     }
 
+    public void removeFoodConf() {
+        String name = foodNameTextField.getText().trim();
+        if (name.isEmpty()) {
+            new Alert(AlertType.WARNING, "Please enter a food name to remove.").showAndWait();
+            return;
+        }
+
+        Food foodToRemove = null;
+        for (Food f : collectionOfFoods) {
+            if (f.getName().equalsIgnoreCase(name)) {
+                foodToRemove = f;
+                break;
+            }
+        }
+
+        if (foodToRemove == null) {
+            new Alert(AlertType.INFORMATION, "The food '" + name + "' does not exist.").showAndWait();
+            return;
+        }
+
+        File inputFile = new File("src/main/resources/confList.txt");
+        File tempFile = new File("temp_" + inputFile.getName());
+        String lineToRemove = String.format("%s;%s", foodToRemove.getName(), foodToRemove.getUnit());
+        boolean fileOperationSuccessful = false;
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(inputFile));
+             BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile))) {
+
+            String currentLine;
+            while ((currentLine = reader.readLine()) != null) {
+                if (currentLine.trim().equalsIgnoreCase(lineToRemove)) continue;
+                writer.write(currentLine + System.getProperty("line.separator"));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            new Alert(AlertType.ERROR, "An error occurred while accessing the food configuration file.").showAndWait();
+            tempFile.delete();
+            return;
+        }
+
+        if (inputFile.delete()) {
+            if (tempFile.renameTo(inputFile)) {
+                fileOperationSuccessful = true;
+            } else {
+                new Alert(AlertType.ERROR, "CRITICAL: Could not rename the temp file. The configuration file may be lost.").showAndWait();
+            }
+        } else {
+            new Alert(AlertType.ERROR, "Could not modify the configuration file.").showAndWait();
+            tempFile.delete(); // Clean up the temporary file
+        }
+
+        if (fileOperationSuccessful) {
+            // Remove the food from the master data collection
+            collectionOfFoods.remove(foodToRemove);
+            new Alert(AlertType.INFORMATION, "Food '" + foodToRemove.getName() + "' was successfully removed.").showAndWait();
+            foodNameTextField.clear();
+            unitComboBox.getSelectionModel().clearSelection();
+            search();
+        }
+    }
 }
