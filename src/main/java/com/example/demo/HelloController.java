@@ -1,5 +1,4 @@
 package com.example.demo;
-
 import javafx.beans.value.ChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -7,14 +6,10 @@ import javafx.scene.control.*;
 import javafx.stage.FileChooser;
 import javafx.scene.control.Label;
 import javafx.stage.Window;
-
 import java.io.*;
-
 import javafx.scene.control.Alert;
 import javafx.scene.control.ListView;
-
 import javafx.scene.control.TextField;
-
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -25,8 +20,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Collections;
-
-import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 
 public class HelloController {
@@ -144,7 +137,7 @@ public class HelloController {
         double numberValue;
         try {
             numberValue = Double.parseDouble(rawNumberValue);
-            if (numberValue < 0) {
+            if (numberValue <= 0) {
                 new Alert(Alert.AlertType.WARNING,
                         "Please number of a food must be >= 0.")
                         .showAndWait();
