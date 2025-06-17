@@ -23,7 +23,8 @@ import java.util.Collections;
 import javafx.scene.control.Alert.AlertType;
 
 public class HelloController {
-    public static Scanner myReader;
+    //public static Scanner myReader;
+
     @FXML
     private ListView<Food> myListView;
 
