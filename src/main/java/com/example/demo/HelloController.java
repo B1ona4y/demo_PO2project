@@ -116,7 +116,6 @@ public class HelloController {
     }
 
     private List<Food> searchList(String searchWords, List<Food> listOfFoods) {
-
         List<String> searchWordsArray = Arrays.asList(searchWords.trim().split(" "));
         return listOfFoods.stream()
                 .filter(food -> searchWordsArray.stream()
@@ -152,13 +151,13 @@ public class HelloController {
                 return;
             }
         }
+
         catch (NumberFormatException e) {
             new Alert(Alert.AlertType.WARNING,
                     "Please enter a positive number for the quantity.")
                     .showAndWait();
             return;
         }
-
 
         String unit = unitComboBox.getValue();
         if (unit == null || unit.isEmpty()) {
@@ -275,7 +274,7 @@ public class HelloController {
         if (file != null) {
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
                 for (Food food : myListView.getItems()) {
-                    String line = String.format("%s;%f;%s",
+                    String line = String.format("%s ; %f ; %s",
                             food.getName(),
                             food.getQuantity(),
                             food.getUnit()
@@ -320,7 +319,7 @@ public class HelloController {
                         try {
                             quantity = Double.parseDouble(cleaned);
                         } catch (NumberFormatException nfe) {
-                            System.err.println("Не удалось распарсить число из строки: '" + cleaned + "'");
+                            System.err.println("Couldn`t parse number: '" + cleaned + "'");
                             continue;
                         }
 
